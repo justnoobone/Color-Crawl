@@ -1,5 +1,6 @@
-requests
-lxml
-openpyxl
+requests~=2.32.3
+lxml~=5.3.1
+openpyxl~=3.1.5
 fake_useragent
-tqdm
+tqdm~=4.67.1
+aiohttp~=3.11.14
