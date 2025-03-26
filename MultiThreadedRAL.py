@@ -19,11 +19,14 @@ def fetch_color_details(url):
             tree = etree.HTML(response.content)
 
             def extract_value(label):
-                # 使用精确的父级路径定位，避免其他表格干扰
-                xpath = f'//table[contains(@class, "detail-table")]//tr[td[@class="left" and normalize-space()="{label}"]]/td[@class="right"]'
+                # 更宽松的定位策略
+                xpath = f'//tr[td[@class="left" and normalize-space()="{label}"]]/td[@class="right"]'
                 element = tree.xpath(xpath)
                 if not element:
-                    raise ValueError(f"找不到 {label} 字段")
+                    # 添加HTML调试日志
+                    with open("debug.html", "w", encoding="utf-8") as f:
+                        f.write(etree.tostring(tree, pretty_print=True).decode())
+                    raise ValueError(f"找不到 {label} 字段，已保存debug.html")
                 return element[0].xpath('string()').strip()
 
             # 提取关键字段
@@ -139,7 +142,7 @@ if __name__ == '__main__':
     failed_urls = []
 
     # 使用线程池（限制最大并发数为10）
-    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
         future_to_url = {executor.submit(fetch_color_details, url): url for url in color_links}
 
         # 进度条设置（优化显示单位）
